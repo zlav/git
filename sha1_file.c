@@ -3749,7 +3749,7 @@ int for_each_file_in_obj_subdir(unsigned int subdir_nr,
 				each_loose_subdir_fn subdir_cb,
 				void *data)
 {
-	size_t origlen, baselen;
+	size_t origlen, dirlen, baselen;
 	DIR *dir;
 	struct dirent *de;
 	int r = 0;
@@ -3760,7 +3760,7 @@ int for_each_file_in_obj_subdir(unsigned int subdir_nr,
 	origlen = path->len;
 	strbuf_complete(path, '/');
 	strbuf_addf(path, "%02x", subdir_nr);
-	baselen = path->len;
+	dirlen = path->len;
 
 	dir = opendir(path->buf);
 	if (!dir) {
@@ -3770,12 +3770,15 @@ int for_each_file_in_obj_subdir(unsigned int subdir_nr,
 		return r;
 	}
 
+	strbuf_addch(path, '/');
+	baselen = path->len;
+
 	while ((de = readdir(dir))) {
 		if (is_dot_or_dotdot(de->d_name))
 			continue;
 
 		strbuf_setlen(path, baselen);
-		strbuf_addf(path, "/%s", de->d_name);
+		strbuf_addstr(path, de->d_name);
 
 		if (strlen(de->d_name) == GIT_SHA1_HEXSZ - 2)  {
 			char hex[GIT_MAX_HEXSZ+1];
@@ -3801,7 +3804,7 @@ int for_each_file_in_obj_subdir(unsigned int subdir_nr,
 	}
 	closedir(dir);
 
-	strbuf_setlen(path, baselen);
+	strbuf_setlen(path, dirlen);
 	if (!r && subdir_cb)
 		r = subdir_cb(subdir_nr, path->buf, data);
 
