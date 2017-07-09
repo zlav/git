@@ -3749,7 +3749,7 @@ int for_each_file_in_obj_subdir(unsigned int subdir_nr,
 				each_loose_subdir_fn subdir_cb,
 				void *data)
 {
-	size_t origlen, dirlen, baselen;
+	size_t origlen, baselen;
 	DIR *dir;
 	struct dirent *de;
 	int r = 0;
@@ -3760,7 +3760,6 @@ int for_each_file_in_obj_subdir(unsigned int subdir_nr,
 	origlen = path->len;
 	strbuf_complete(path, '/');
 	strbuf_addf(path, "%02x", subdir_nr);
-	dirlen = path->len;
 
 	dir = opendir(path->buf);
 	if (!dir) {
@@ -3804,7 +3803,7 @@ int for_each_file_in_obj_subdir(unsigned int subdir_nr,
 	}
 	closedir(dir);
 
-	strbuf_setlen(path, dirlen);
+	strbuf_setlen(path, baselen - 1); /* chomp the '/' that we added */
 	if (!r && subdir_cb)
 		r = subdir_cb(subdir_nr, path->buf, data);
 
