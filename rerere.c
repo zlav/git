@@ -1178,11 +1178,21 @@ static void prune_one(struct rerere_id *id,
 
 static void config_get_expiry(const char *key, timestamp_t *cutoff, timestamp_t now)
 {
-	int days;
+	char *expiry_string;
+	intmax_t days;
+	timestamp_t when;
 
-	if (!git_config_get_int(key, &days)) {
+	if (git_config_get_string(key, &expiry_string))
+		return;
+
+	if (git_parse_signed(expiry_string, &days, maximum_signed_value_of_type(int))) {
 		const int scale = 86400;
 		*cutoff = now - days * scale;
+		return;
+	}
+
+	if (!parse_expiry_date(expiry_string, &when)) {
+		*cutoff = when;
 	}
 }
 
