@@ -770,7 +770,7 @@ static int parse_unit_factor(const char *end, uintmax_t *val)
 	return 0;
 }
 
-static int git_parse_signed(const char *value, intmax_t *ret, intmax_t max)
+int git_parse_signed(const char *value, intmax_t *ret, intmax_t max)
 {
 	if (value && *value) {
 		char *end;
@@ -800,7 +800,7 @@ static int git_parse_signed(const char *value, intmax_t *ret, intmax_t max)
 	return 0;
 }
 
-static int git_parse_unsigned(const char *value, uintmax_t *ret, uintmax_t max)
+int git_parse_unsigned(const char *value, uintmax_t *ret, uintmax_t max)
 {
 	if (value && *value) {
 		char *end;
